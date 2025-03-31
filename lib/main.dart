@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-// Si deseas implementar pagos, podrías usar un paquete como `pay`
 import 'package:pay/pay.dart';
 
 void main() async {
@@ -20,7 +19,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Demo Firebase & AdMob',
       theme: ThemeData(primarySwatch: Colors.blue),
-      initialRoute: '/payment',
       home: LoginScreen(),
       routes: {
         '/home': (_) => HomeScreen(),
@@ -44,23 +42,17 @@ class _LoginScreenState extends State<LoginScreen> {
       _isSigningIn = true;
     });
 
-    // Instantiate GoogleSignIn with your Web Client ID
-    final GoogleSignIn googleSignIn = GoogleSignIn(
-      clientId: '690267397075-r58mj6e652ovlksvom0cc9ngh0lsmjov.apps.googleusercontent.com',
-    );
-
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     if (googleUser == null) {
-      setState(() {
-        _isSigningIn = false;
-      });
+      // If the user canceled the sign-in, handle it here
       return null;
     }
 
+    // Obtain the Google account’s authentication details (tokens)
     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-    final credential = GoogleAuthProvider.credential(
+    // Create a new credential for Firebase with the tokens
+    final OAuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
@@ -125,7 +117,9 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         onAdFailedToLoad: (LoadAdError error) {
           print('RewardedAd failed to load: $error');
-          _isRewardedAdReady = false;
+          setState(() {
+            _isRewardedAdReady = false;
+          });
         },
       ),
     );
@@ -139,17 +133,21 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       );
       _rewardedAd = null;
-      _isRewardedAdReady = false;
+      setState(() {
+        _isRewardedAdReady = false;
+      });
       _loadRewardedAd();
     }
   }
 
-  // Ejemplo de widget para anuncio nativo (placeholder)
+  // Componente que muestra un anuncio nativo de prueba
   Widget _nativeAdWidget() {
     return Container(
       height: 100,
       color: Colors.grey[300],
-      child: const Center(child: Text('Aquí se muestra un anuncio nativo de prueba')),
+      child: const Center(
+        child: Text('Aquí se muestra un anuncio nativo de prueba'),
+      ),
     );
   }
 
@@ -165,6 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Pantalla AdMob'),
         actions: [
+          // Botón para ir a la pantalla de pagos en el AppBar (opcional)
           IconButton(
             icon: const Icon(Icons.payment),
             onPressed: () {
@@ -177,12 +176,22 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // 1. Botón para mostrar el Rewarded Ad
             ElevatedButton(
               child: const Text('Mostrar Reward Ad'),
               onPressed: _isRewardedAdReady ? _showRewardedAd : null,
             ),
             const SizedBox(height: 20),
+            // 2. Componente que muestra un anuncio nativo de prueba
             _nativeAdWidget(),
+            const SizedBox(height: 20),
+            // 3. Botón adicional para ir a la pantalla de pagos
+            ElevatedButton(
+              child: const Text('Ir a Pantalla de Pagos'),
+              onPressed: () {
+                Navigator.pushNamed(context, '/payment');
+              },
+            ),
           ],
         ),
       ),
