@@ -3,13 +3,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-// Si deseas implementar pagos, podrías usar un paquete como `pay`
 import 'package:pay/pay.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  // Inicializamos AdMob
   MobileAds.instance.initialize();
   runApp(MyApp());
 }
@@ -29,7 +27,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// --- PANTALLA DE LOGIN CON GOOGLE ---
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -43,7 +40,6 @@ class _LoginScreenState extends State<LoginScreen> {
       _isSigningIn = true;
     });
 
-    // Instantiate GoogleSignIn with your Web Client ID
     final GoogleSignIn googleSignIn = GoogleSignIn(
       clientId: '690267397075-qblevon37kfoe74vbmo312hu51jstuku.apps.googleusercontent.com',
     );
@@ -95,7 +91,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-/// --- PANTALLA PRINCIPAL CON ANUNCIOS DE ADMOB ---
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -143,7 +138,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Ejemplo de widget para anuncio nativo (placeholder)
   Widget _nativeAdWidget() {
     return Container(
       height: 100,
@@ -199,7 +193,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
 class PaymentTestScreen extends StatelessWidget {
-  // Define some payment items for testing (e.g., a $1.00 transaction)
   final List<PaymentItem> _paymentItems = [
     PaymentItem(
       label: 'Total',
@@ -208,7 +201,6 @@ class PaymentTestScreen extends StatelessWidget {
     ),
   ];
 
-  // Test configuration for Google Pay using dummy keys
   static const String googlePayConfig = '''
 {
   "provider": "google_pay",
@@ -241,7 +233,6 @@ class PaymentTestScreen extends StatelessWidget {
 }
 ''';
 
-  // Test configuration for Apple Pay using a dummy sandbox merchant identifier
   static const String applePayConfig = '''
 {
   "provider": "apple_pay",
@@ -256,12 +247,10 @@ class PaymentTestScreen extends StatelessWidget {
 ''';
 
   void onGooglePayResult(Map<String, dynamic> paymentResult) {
-    // Handle the Google Pay result here
     print('Google Pay Payment Result: $paymentResult');
   }
 
   void onApplePayResult(Map<String, dynamic> paymentResult) {
-    // Handle the Apple Pay result here
     print('Apple Pay Payment Result: $paymentResult');
   }
 
@@ -273,7 +262,6 @@ class PaymentTestScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Google Pay Payment Button using the test configuration
             GooglePayButton(
               paymentConfiguration: PaymentConfiguration.fromJsonString(googlePayConfig),
               paymentItems: _paymentItems,
@@ -281,7 +269,6 @@ class PaymentTestScreen extends StatelessWidget {
               loadingIndicator: const CircularProgressIndicator(),
             ),
             const SizedBox(height: 20),
-            // Apple Pay Payment Button using the test configuration
             ApplePayButton(
               paymentConfiguration: PaymentConfiguration.fromJsonString(applePayConfig),
               paymentItems: _paymentItems,
