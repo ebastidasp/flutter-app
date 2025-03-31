@@ -20,7 +20,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Demo Firebase & AdMob',
       theme: ThemeData(primarySwatch: Colors.blue),
-      initialRoute: '/payment',
       home: LoginScreen(),
       routes: {
         '/home': (_) => HomeScreen(),
@@ -46,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Instantiate GoogleSignIn with your Web Client ID
     final GoogleSignIn googleSignIn = GoogleSignIn(
-      clientId: '690267397075-r58mj6e652ovlksvom0cc9ngh0lsmjov.apps.googleusercontent.com',
+      clientId: '690267397075-qblevon37kfoe74vbmo312hu51jstuku.apps.googleusercontent.com',
     );
 
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
@@ -114,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _loadRewardedAd() {
     RewardedAd.load(
-      adUnitId: 'ca-app-pub-6028945278255259/4039606333', // Reemplaza con tu ID de AdMob para Rewarded
+      adUnitId: 'ca-app-pub-6028945278255259/8676855341',
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (RewardedAd ad) {
@@ -182,6 +181,14 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: _isRewardedAdReady ? _showRewardedAd : null,
             ),
             const SizedBox(height: 20),
+            // New button to navigate to Payment screen
+            ElevatedButton(
+              child: const Text('Ir a Pantalla de Pagos'),
+              onPressed: () {
+                Navigator.pushNamed(context, '/payment');
+              },
+            ),
+            const SizedBox(height: 20),
             _nativeAdWidget(),
           ],
         ),
@@ -189,6 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
 
 class PaymentTestScreen extends StatelessWidget {
   // Define some payment items for testing (e.g., a $1.00 transaction)
