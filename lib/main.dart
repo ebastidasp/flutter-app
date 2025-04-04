@@ -99,55 +99,85 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   RewardedAd? _rewardedAd;
   bool _isRewardedAdReady = false;
+  Future<NativeAd>? _nativeAdFuture; // Future for loading native ad
+  bool _adFlag = false; // Flag to control ad display
 
   @override
   void initState() {
     super.initState();
     _loadRewardedAd();
+    _nativeAdFuture = _loadNativeAd();
   }
 
   void _loadRewardedAd() {
     RewardedAd.load(
-      adUnitId: 'ca-app-pub-6028945278255259/8676855341',
+      adUnitId: 'ca-app-pub-6028945278255259/8676855341', // Replace with your Rewarded ad unit ID
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (RewardedAd ad) {
           _rewardedAd = ad;
-          setState(() {
-            _isRewardedAdReady = true;
-          });
+          if (mounted) {
+            setState(() {
+              _isRewardedAdReady = true;
+            });
+          }
         },
         onAdFailedToLoad: (LoadAdError error) {
           print('RewardedAd failed to load: $error');
-          _isRewardedAdReady = false;
+          if (mounted) {
+            setState(() {
+              _isRewardedAdReady = false;
+            });
+          }
         },
       ),
     );
+  }
+
+  // Load the native ad and return it as a Future.
+  Future<NativeAd> _loadNativeAd() async {
+    final NativeAd nativeAd = NativeAd(
+      adUnitId: 'ca-app-pub-6028945278255259/7592805166', // Replace with your native ad unit ID
+      factoryId: 'adFactoryExample', // Must match the registered factoryId on the native side
+      request: const AdRequest(),
+      listener: NativeAdListener(
+        onAdLoaded: (ad) {
+          _adFlag = true;
+          print('Native ad loaded.');
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          print('Native ad failed to load: $error');
+          throw Exception('Native ad failed to load: $error');
+        },
+      ),
+    );
+
+    await nativeAd.load();
+    return nativeAd;
   }
 
   void _showRewardedAd() {
     if (_isRewardedAdReady && _rewardedAd != null) {
       _rewardedAd!.show(
         onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-          print('Usuario ganó: ${reward.amount} ${reward.type}');
+          print('User earned: ${reward.amount} ${reward.type}');
         },
       );
       _rewardedAd = null;
-      _isRewardedAdReady = false;
+      if (mounted) {
+        setState(() {
+          _isRewardedAdReady = false;
+        });
+      }
       _loadRewardedAd();
     }
   }
 
-  Widget _nativeAdWidget() {
-    return Container(
-      height: 100,
-      color: Colors.grey[300],
-      child: const Center(child: Text('Aquí se muestra un anuncio nativo de prueba')),
-    );
-  }
-
   @override
   void dispose() {
+    // Set the flag to false so that the ad isn't shown after the page is closed.
+    _adFlag = false;
     _rewardedAd?.dispose();
     super.dispose();
   }
@@ -175,18 +205,42 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: _isRewardedAdReady ? _showRewardedAd : null,
             ),
             const SizedBox(height: 20),
-            // New button to navigate to Payment screen
             ElevatedButton(
               child: const Text('Ir a Pantalla de Pagos'),
               onPressed: () {
                 Navigator.pushNamed(context, '/payment');
               },
             ),
-            const SizedBox(height: 20),
-            _nativeAdWidget(),
           ],
         ),
       ),
+      // Use the _adFlag to decide whether to display the native ad.
+      bottomNavigationBar: _adFlag
+          ? FutureBuilder<NativeAd>(
+              future: _nativeAdFuture,
+              builder: (BuildContext context, AsyncSnapshot<NativeAd> snapshot) {
+                if (!_adFlag) return const SizedBox.shrink();
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox(
+                    height: 70,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                } else if (snapshot.hasData) {
+                  return SizedBox(
+                    height: 70,
+                    child: AdWidget(ad: snapshot.data!),
+                  );
+                } else {
+                  print('Native ad error: ${snapshot.error}');
+                  return SizedBox(
+                    height: 70,
+                    child: Center(
+                        child: Text('Ad failed to load: ${snapshot.error}')),
+                  );
+                }
+              },
+            )
+          : const SizedBox.shrink(),
     );
   }
 }
