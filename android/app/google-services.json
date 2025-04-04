@@ -1,62 +1,70 @@
 {
-    "project_info": {
-      "project_number": "690267397075",
-      "project_id": "xerax-b2c",
-      "storage_bucket": "xerax-b2c.firebasestorage.app"
-    },
-    "client": [
-      {
-        "client_info": {
-          "mobilesdk_app_id": "1:690267397075:android:df885e4ee6d70e59fa6d26",
-          "android_client_info": {
-            "package_name": "b2c.xerax"
+  "project_info": {
+    "project_number": "690267397075",
+    "project_id": "xerax-b2c",
+    "storage_bucket": "xerax-b2c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:690267397075:android:df885e4ee6d70e59fa6d26",
+        "android_client_info": {
+          "package_name": "b2c.xerax"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "690267397075-68d4n30i115ul4jippaft0elo1o1ef9v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "b2c.xerax",
+            "certificate_hash": "29f18521098bb731918178e7dd7beb509e4cfbcf"
           }
         },
-        "oauth_client": [
-          {
-            "client_id": "690267397075-68d4n30i115ul4jippaft0elo1o1ef9v.apps.googleusercontent.com",
-            "client_type": 1,
-            "android_info": {
-              "package_name": "b2c.xerax",
-              "certificate_hash": "29f18521098bb731918178e7dd7beb509e4cfbcf"
-            }
-          },
-          {
-            "client_id": "690267397075-cbmub89ocu2j091uo9bd0oqjc9q490gn.apps.googleusercontent.com",
-            "client_type": 1,
-            "android_info": {
-              "package_name": "b2c.xerax",
-              "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
-            }
-          },
-          {
-            "client_id": "690267397075-r58mj6e652ovlksvom0cc9ngh0lsmjov.apps.googleusercontent.com",
-            "client_type": 3
+        {
+          "client_id": "690267397075-cbmub89ocu2j091uo9bd0oqjc9q490gn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "b2c.xerax",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
           }
-        ],
-        "api_key": [
-          {
-            "current_key": "AIzaSyAn3PvEsKpanM-e1UOuXYSCl8oE2bGryN8"
+        },
+        {
+          "client_id": "690267397075-i5429klo8pdq0030660r4pl9ijsuv364.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "b2c.xerax",
+            "certificate_hash": "4e75f2209810e6a197af60e99ba05c760bf1b5ee"
           }
-        ],
-        "services": {
-          "appinvite_service": {
-            "other_platform_oauth_client": [
-              {
-                "client_id": "690267397075-hdq5n1lm167vp8pfl2geg01ab9mau7sh.apps.googleusercontent.com",
-                "client_type": 3
-              },
-              {
-                "client_id": "690267397075-qblevon37kfoe74vbmo312hu51jstuku.apps.googleusercontent.com",
-                "client_type": 2,
-                "ios_info": {
-                  "bundle_id": "b2c.xerax"
-                }
+        },
+        {
+          "client_id": "690267397075-r58mj6e652ovlksvom0cc9ngh0lsmjov.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAn3PvEsKpanM-e1UOuXYSCl8oE2bGryN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "690267397075-hdq5n1lm167vp8pfl2geg01ab9mau7sh.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "690267397075-qblevon37kfoe74vbmo312hu51jstuku.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "b2c.xerax"
               }
-            ]
-          }
+            }
+          ]
         }
       }
-    ],
-    "configuration_version": "1"
-  }
+    }
+  ],
+  "configuration_version": "1"
+}

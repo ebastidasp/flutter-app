@@ -7,9 +7,8 @@ import 'package:pay/pay.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  // Inicializamos AdMob
   MobileAds.instance.initialize();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -28,7 +27,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// --- PANTALLA DE LOGIN CON GOOGLE ---
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -44,14 +42,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     if (googleUser == null) {
-      // If the user canceled the sign-in, handle it here
       return null;
     }
 
-    // Obtain the Google account’s authentication details (tokens)
     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-    // Create a new credential for Firebase with the tokens
     final OAuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
@@ -72,23 +67,34 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Login con Google')),
       body: Center(
-        child: _isSigningIn
-            ? const CircularProgressIndicator()
-            : ElevatedButton(
-                child: const Text('Iniciar sesión con Google'),
-                onPressed: () async {
-                  User? user = await signInWithGoogle();
-                  if (user != null) {
-                    Navigator.pushReplacementNamed(context, '/home');
-                  }
-                },
-              ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _isSigningIn
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                    child: const Text('Iniciar sesión con Google'),
+                    onPressed: () async {
+                      User? user = await signInWithGoogle();
+                      if (user != null) {
+                        Navigator.pushReplacementNamed(context, '/home');
+                      }
+                    },
+                  ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              child: const Text('Ir a la vista de Home'),
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/home');
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// --- PANTALLA PRINCIPAL CON ANUNCIOS DE ADMOB ---
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -97,62 +103,85 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   RewardedAd? _rewardedAd;
   bool _isRewardedAdReady = false;
+  Future<NativeAd>? _nativeAdFuture; // Future for loading native ad
+  bool _adFlag = false; // Flag to control ad display
 
   @override
   void initState() {
     super.initState();
     _loadRewardedAd();
+    _nativeAdFuture = _loadNativeAd();
   }
 
   void _loadRewardedAd() {
     RewardedAd.load(
-      adUnitId: 'ca-app-pub-6028945278255259/4039606333', // Reemplaza con tu ID de AdMob para Rewarded
+      adUnitId: 'ca-app-pub-6028945278255259/4039606333', // Replace with your Rewarded ad unit ID
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (RewardedAd ad) {
           _rewardedAd = ad;
-          setState(() {
-            _isRewardedAdReady = true;
-          });
+          if (mounted) {
+            setState(() {
+              _isRewardedAdReady = true;
+            });
+          }
         },
         onAdFailedToLoad: (LoadAdError error) {
           print('RewardedAd failed to load: $error');
-          setState(() {
-            _isRewardedAdReady = false;
-          });
+          if (mounted) {
+            setState(() {
+              _isRewardedAdReady = false;
+            });
+          }
         },
       ),
     );
+  }
+
+  // Load the native ad and return it as a Future.
+  Future<NativeAd> _loadNativeAd() async {
+    final NativeAd nativeAd = NativeAd(
+      adUnitId: 'ca-app-pub-3940256099942544/2247696110', // Replace with your native ad unit ID
+      factoryId: 'adFactoryExample', // Must match the registered factoryId on the native side
+      request: const AdRequest(),
+      listener: NativeAdListener(
+        onAdLoaded: (ad) {
+          _adFlag = true;
+          print('Native ad loaded.');
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          print('Native ad failed to load: $error');
+          throw Exception('Native ad failed to load: $error');
+        },
+      ),
+    );
+
+    await nativeAd.load();
+    return nativeAd;
   }
 
   void _showRewardedAd() {
     if (_isRewardedAdReady && _rewardedAd != null) {
       _rewardedAd!.show(
         onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-          print('Usuario ganó: ${reward.amount} ${reward.type}');
+          print('User earned: ${reward.amount} ${reward.type}');
         },
       );
       _rewardedAd = null;
-      setState(() {
-        _isRewardedAdReady = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isRewardedAdReady = false;
+        });
+      }
       _loadRewardedAd();
     }
   }
 
-  // Componente que muestra un anuncio nativo de prueba
-  Widget _nativeAdWidget() {
-    return Container(
-      height: 100,
-      color: Colors.grey[300],
-      child: const Center(
-        child: Text('Aquí se muestra un anuncio nativo de prueba'),
-      ),
-    );
-  }
-
   @override
   void dispose() {
+    // Set the flag to false so that the ad isn't shown after the page is closed.
+    _adFlag = false;
     _rewardedAd?.dispose();
     super.dispose();
   }
@@ -163,7 +192,6 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Pantalla AdMob'),
         actions: [
-          // Botón para ir a la pantalla de pagos en el AppBar (opcional)
           IconButton(
             icon: const Icon(Icons.payment),
             onPressed: () {
@@ -176,16 +204,11 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 1. Botón para mostrar el Rewarded Ad
             ElevatedButton(
               child: const Text('Mostrar Reward Ad'),
               onPressed: _isRewardedAdReady ? _showRewardedAd : null,
             ),
             const SizedBox(height: 20),
-            // 2. Componente que muestra un anuncio nativo de prueba
-            _nativeAdWidget(),
-            const SizedBox(height: 20),
-            // 3. Botón adicional para ir a la pantalla de pagos
             ElevatedButton(
               child: const Text('Ir a Pantalla de Pagos'),
               onPressed: () {
@@ -195,12 +218,38 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      // Use the _adFlag to decide whether to display the native ad.
+      bottomNavigationBar: _adFlag
+          ? FutureBuilder<NativeAd>(
+              future: _nativeAdFuture,
+              builder: (BuildContext context, AsyncSnapshot<NativeAd> snapshot) {
+                if (!_adFlag) return const SizedBox.shrink();
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox(
+                    height: 70,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                } else if (snapshot.hasData) {
+                  return SizedBox(
+                    height: 70,
+                    child: AdWidget(ad: snapshot.data!),
+                  );
+                } else {
+                  print('Native ad error: ${snapshot.error}');
+                  return SizedBox(
+                    height: 70,
+                    child: Center(
+                        child: Text('Ad failed to load: ${snapshot.error}')),
+                  );
+                }
+              },
+            )
+          : const SizedBox.shrink(),
     );
   }
 }
 
 class PaymentTestScreen extends StatelessWidget {
-  // Define some payment items for testing (e.g., a $1.00 transaction)
   final List<PaymentItem> _paymentItems = [
     PaymentItem(
       label: 'Total',
@@ -209,7 +258,6 @@ class PaymentTestScreen extends StatelessWidget {
     ),
   ];
 
-  // Test configuration for Google Pay using dummy keys
   static const String googlePayConfig = '''
 {
   "provider": "google_pay",
@@ -242,7 +290,6 @@ class PaymentTestScreen extends StatelessWidget {
 }
 ''';
 
-  // Test configuration for Apple Pay using a dummy sandbox merchant identifier
   static const String applePayConfig = '''
 {
   "provider": "apple_pay",
@@ -274,7 +321,6 @@ class PaymentTestScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Google Pay Payment Button using the test configuration
             GooglePayButton(
               paymentConfiguration: PaymentConfiguration.fromJsonString(googlePayConfig),
               paymentItems: _paymentItems,
@@ -282,7 +328,6 @@ class PaymentTestScreen extends StatelessWidget {
               loadingIndicator: const CircularProgressIndicator(),
             ),
             const SizedBox(height: 20),
-            // Apple Pay Payment Button using the test configuration
             ApplePayButton(
               paymentConfiguration: PaymentConfiguration.fromJsonString(applePayConfig),
               paymentItems: _paymentItems,

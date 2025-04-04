@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.gms.ads.nativead.NativeAdView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/native_ad_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/ad_headline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!-- Use MediaView instead of ImageView for the ad media -->
+    <com.google.android.gms.ads.nativead.MediaView
+        android:id="@+id/ad_media"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/ad_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp" />
+
+    <!-- Add more views as needed -->
+
+</com.google.android.gms.ads.nativead.NativeAdView>

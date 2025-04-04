@@ -1,18 +1,14 @@
-// Add this buildscript block at the very top of your file:
 buildscript {
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        // Use the version that matches your project setup.
-        classpath("com.android.tools.build:gradle:7.3.1")
-        // Google Services plugin for Firebase.
+        classpath("com.android.tools.build:gradle:8.9.1")
         classpath("com.google.gms:google-services:4.3.15")
     }
 }
 
-// The rest of your file remains the same:
 allprojects {
     repositories {
         google()
