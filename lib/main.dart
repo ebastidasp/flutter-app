@@ -295,7 +295,9 @@ class PaymentTestScreen extends StatelessWidget {
     "displayName": "Example Store",
     "merchantCapabilities": ["3DS", "EMV", "Credit", "Debit"],
     "supportedCountries": ["US"],
-    "supportedNetworks": ["visa", "masterCard", "amex"]
+    "supportedNetworks": ["visa", "masterCard", "amex"],
+    "countryCode": "US",
+    "currencyCode": "USD"
   }
 }
 ''';
