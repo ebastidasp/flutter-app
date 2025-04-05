@@ -29,6 +29,7 @@ android {
     defaultConfig {
         applicationId = "b2c.xerax"
         minSdk = 23
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

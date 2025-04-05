@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -82,12 +84,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              child: const Text('Ir a la vista de Home'),
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/home');
-              },
-            ),
           ],
         ),
       ),
@@ -104,22 +100,35 @@ class _HomeScreenState extends State<HomeScreen> {
   RewardedAd? _rewardedAd;
   bool _isRewardedAdReady = false;
   Future<NativeAd>? _nativeAdFuture; // Future for loading native ad
-  bool _adFlag = false; // Flag to control ad display
+  bool _adFlag = false;
 
   @override
   void initState() {
     super.initState();
     _loadRewardedAd();
     _nativeAdFuture = _loadNativeAd();
+    _nativeAdFuture = _loadNativeAd();
   }
 
   void _loadRewardedAd() {
+
+    final String adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-6028945278255259/4039606333'
+      : Platform.isIOS
+          ? 'ca-app-pub-6028945278255259/8676855341'
+          : throw UnsupportedError('Unsupported platform');
+
     RewardedAd.load(
       adUnitId: 'ca-app-pub-6028945278255259/4039606333', // Replace with your Rewarded ad unit ID
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (RewardedAd ad) {
           _rewardedAd = ad;
+          if (mounted) {
+            setState(() {
+              _isRewardedAdReady = true;
+            });
+          }
           if (mounted) {
             setState(() {
               _isRewardedAdReady = true;
@@ -133,6 +142,11 @@ class _HomeScreenState extends State<HomeScreen> {
               _isRewardedAdReady = false;
             });
           }
+          if (mounted) {
+            setState(() {
+              _isRewardedAdReady = false;
+            });
+          }
         },
       ),
     );
@@ -140,8 +154,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Load the native ad and return it as a Future.
   Future<NativeAd> _loadNativeAd() async {
+
+    final String adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/2247696110'
+      : Platform.isIOS
+          ? 'ca-app-pub-6028945278255259/7592805166'
+          : throw UnsupportedError('Unsupported platform');
+
     final NativeAd nativeAd = NativeAd(
-      adUnitId: 'ca-app-pub-3940256099942544/2247696110', // Replace with your native ad unit ID
+      adUnitId: adUnitId, // Replace with your native ad unit ID
       factoryId: 'adFactoryExample', // Must match the registered factoryId on the native side
       request: const AdRequest(),
       listener: NativeAdListener(
@@ -166,9 +187,15 @@ class _HomeScreenState extends State<HomeScreen> {
       _rewardedAd!.show(
         onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
           print('User earned: ${reward.amount} ${reward.type}');
+          print('User earned: ${reward.amount} ${reward.type}');
         },
       );
       _rewardedAd = null;
+      if (mounted) {
+        setState(() {
+          _isRewardedAdReady = false;
+        });
+      }
       if (mounted) {
         setState(() {
           _isRewardedAdReady = false;
@@ -180,6 +207,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    // Set the flag to false so that the ad isn't shown after the page is closed.
+    _adFlag = false;
     // Set the flag to false so that the ad isn't shown after the page is closed.
     _adFlag = false;
     _rewardedAd?.dispose();
@@ -298,18 +327,18 @@ class PaymentTestScreen extends StatelessWidget {
     "displayName": "Example Store",
     "merchantCapabilities": ["3DS", "EMV", "Credit", "Debit"],
     "supportedCountries": ["US"],
-    "supportedNetworks": ["visa", "masterCard", "amex"]
+    "supportedNetworks": ["visa", "masterCard", "amex"],
+    "countryCode": "US",
+    "currencyCode": "USD"
   }
 }
 ''';
 
   void onGooglePayResult(Map<String, dynamic> paymentResult) {
-    // Handle the Google Pay result here
     print('Google Pay Payment Result: $paymentResult');
   }
 
   void onApplePayResult(Map<String, dynamic> paymentResult) {
-    // Handle the Apple Pay result here
     print('Apple Pay Payment Result: $paymentResult');
   }
 
