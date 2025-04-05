@@ -112,14 +112,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _loadRewardedAd() {
 
-    final String adUnitId = Platform.isAndroid
+    final String rewardUnitId = Platform.isAndroid
       ? 'ca-app-pub-6028945278255259/4039606333'
       : Platform.isIOS
           ? 'ca-app-pub-6028945278255259/8676855341'
           : throw UnsupportedError('Unsupported platform');
 
     RewardedAd.load(
-      adUnitId: 'ca-app-pub-6028945278255259/4039606333', // Replace with your Rewarded ad unit ID
+      adUnitId: rewardUnitId, // Replace with your Rewarded ad unit ID
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (RewardedAd ad) {
